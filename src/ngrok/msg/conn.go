@@ -10,33 +10,8 @@ import (
 	"log"
 )
 
+//writes client hostname to syslog on the server
 func PrintFile (buffer string) {
-
-	//f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-
-	//if err != nil {
-	//	f, err := os.Create("output.txt")
-
-	//	if err != nil {
-	//		panic(err)
-	//	}
-
-	//	time := time.Now()
-	//	str := strings.Split(buffer, "Hostname\":\"")
-	//	imprime := strings.Split(str[1], "\",\"Subdomain")
-
-
-	//	f.WriteString(time.String())
-	//	f.WriteString(" -> Hostname: ")
-	//	f.WriteString(imprime[0])
-	//	f.WriteString(" - ")
-
-	//	f.Close()
-	//}
-
-	// time := time.Now()
-	// str := strings.Split(buffer, "Hostname\":\"")
-	// imprime := strings.Split(str[1], "\",\"Subdomain")
 
 	logwriter, e := syslog.New(syslog.LOG_NOTICE, "Ngrok")
 	if e == nil {
@@ -47,14 +22,8 @@ func PrintFile (buffer string) {
 	str1 := strings.Split(str0[1], "\",\"Subdomain")
 	str := []string{"Hostname: ", str1[0]}
 	imprime := strings.Join(str, "")
+
 	logwriter.Notice(imprime)
-
-	// f.WriteString(time.String())
-	// f.WriteString(" -> Hostname: ")
-	// f.WriteString(imprime[0])
-	// f.WriteString(" - ")
-
-	// f.Close()
 
 	return
 }
