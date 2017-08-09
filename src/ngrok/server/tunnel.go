@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+	"log/syslog"
 )
 
 var defaultPortMap = map[string]int{
@@ -115,10 +116,15 @@ func NewTunnel(m *msg.ReqTunnel, ctl *Control) (t *Tunnel, err error) {
 			addr := t.listener.Addr().(*net.TCPAddr)
 			t.url = fmt.Sprintf("tcp://%s:%d", opts.domain, addr.Port)
 
-			f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+			// f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+			// str := fmt.Sprintf("Connect to %s:%d\n", opts.domain, addr.Port)
+			// f.WriteString(str)
+			// f.Close()
+
+			logwriter, e := syslog.New(syslog.LOG_NOTICE, "Ngrok")
+			if ( e != nil) {panic(e)}
 			str := fmt.Sprintf("Connect to %s:%d\n", opts.domain, addr.Port)
-			f.WriteString(str)
-			f.Close()
+			logwriter.Notice(str)
 
 			// register it
 			if err = tunnelRegistry.RegisterAndCache(t.url, t); err != nil {

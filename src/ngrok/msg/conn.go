@@ -6,24 +6,55 @@ import (
 	"fmt"
 	"ngrok/conn"
 	"strings"
-	"os"
+	"log/syslog"
+	"log"
 )
 
 func PrintFile (buffer string) {
-	f, err := os.Create("output.txt")
 
-	if err != nil {
-		panic(err)
+	//f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+
+	//if err != nil {
+	//	f, err := os.Create("output.txt")
+
+	//	if err != nil {
+	//		panic(err)
+	//	}
+
+	//	time := time.Now()
+	//	str := strings.Split(buffer, "Hostname\":\"")
+	//	imprime := strings.Split(str[1], "\",\"Subdomain")
+
+
+	//	f.WriteString(time.String())
+	//	f.WriteString(" -> Hostname: ")
+	//	f.WriteString(imprime[0])
+	//	f.WriteString(" - ")
+
+	//	f.Close()
+	//}
+
+	// time := time.Now()
+	// str := strings.Split(buffer, "Hostname\":\"")
+	// imprime := strings.Split(str[1], "\",\"Subdomain")
+
+	logwriter, e := syslog.New(syslog.LOG_NOTICE, "Ngrok")
+	if e == nil {
+		log.SetOutput(logwriter)
 	}
 
-	str := strings.Split(buffer, "Hostname\":\"")
-	imprime := strings.Split(str[1], "\",\"Subdomain")
+	str0 := strings.Split(buffer, "Hostname\":\"")
+	str1 := strings.Split(str0[1], "\",\"Subdomain")
+	str := []string{"Hostname: ", str1[0]}
+	imprime := strings.Join(str, "")
+	logwriter.Notice(imprime)
 
-	f.WriteString("Hostname: ")
-	f.WriteString(imprime[0])
-	f.WriteString(" - ")
+	// f.WriteString(time.String())
+	// f.WriteString(" -> Hostname: ")
+	// f.WriteString(imprime[0])
+	// f.WriteString(" - ")
 
-	f.Close()
+	// f.Close()
 
 	return
 }
