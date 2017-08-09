@@ -1,0 +1,97 @@
+
+Configuração Ngrok
+===============================================
+
+Instalar Software
+-------------------
+`dnf install golang mercurial`
+
+`git clone https://github.com/machadovilaca/ngrok.git`
+
+`cd ngrok`
+
+
+
+Criar certificado SSL
+-----------------
+(todas as utilizações de "tunnel" neste documento podem ser substituídas por outro subdomínio arbitrário)
+
+`openssl genrsa -out base.key 2048`
+
+`openssl req -new -x509 -nodes -key base.key -days 10000 -subj "/CN=tunnel.eurotux.com" -out base.pem`
+
+`openssl genrsa -out server.key 2048`
+
+`openssl req -new -key server.key -subj "/CN=tunnel.eurotux.com" -out server.csr`
+
+`openssl x509 -req -in server.csr -CA base.pem -CAkey base.key -CAcreateserial -days 10000 -out server.crt`
+
+`cp base.pem assets/client/tls/ngrokroot.crt`
+
+
+
+Configurar Wildcard A record no subdomínio
+-------------------
+* **Name**: `*.tunnel`
+* **Type**: `A`
+* **TTL**: `3600` <- porta meramente exemplificativa
+* **IP/URL/Target**: `0.0.0.0` <- endereço de IP do servidor
+
+
+
+Criar executáveis para o servidor e para o cliente
+-------------------
+`make release-server release-client`
+
+`mv server.* bin/`
+
+`cd bin`
+
+`chmod +x ngrok`  - a ser usado pelo cliente
+
+`chmod +x ngrokd` - a ser usado no servidor
+
+<br />
+<br />
+
+Executar Ngrok Servidor
+===================
+`./ngrokd -tlsKey=server.key -tlsCrt=server.crt -domain="tunnel.eurotux.com"`
+
+<br />
+
+
+Executar Ngrok Cliente
+===================
+Ficheiro de configuração (p.e. NGROK_CONF, na mesma diretoria) com o seguinte conteúdo que será utilizado na execução do programa:
+
+
+>server_addr: tunnel.eurotux.com:4443
+
+>trust_host_root_certs: false
+
+<br />
+<br />
+
+
+Exemplo de Utilização:
+-------------------
+`./ngrok -config=NGROK_CONF -proto tcp 22`
+
+         ngrok                                                                              (Ctrl+C to quit)
+                                                                                                                                                      
+         Tunnel Status                 online                                                                                                                  
+         Version                       1.7/1.7                                                                                                                 
+         Forwarding                    tcp://tunnel.eurotux.com:40355 -> 127.0.0.1:22                                                                           
+         Web Interface                 127.0.0.1:4040                                                                                                          
+         # Conn                        0                                                                                                                       
+         Avg Conn Time                 0.00ms
+
+
+>ssh root@tunnel.eurotux.com -p40355
+
+
+
+
+
+
