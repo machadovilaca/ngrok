@@ -13,6 +13,8 @@ import (
 	"net/url"
 	"ngrok/log"
 	"sync"
+	"os"
+	"strings"
 )
 
 type Conn interface {
@@ -52,6 +54,12 @@ func wrapConn(conn net.Conn, typ string) *loggedConn {
 	return nil
 }
 
+func check(e error) {
+    if e != nil {
+        panic(e)
+    }
+}
+
 func Listen(addr, typ string, tlsCfg *tls.Config) (l *Listener, err error) {
 	// listen for incoming connections
 	listener, err := net.Listen("tcp", addr)
@@ -70,13 +78,25 @@ func Listen(addr, typ string, tlsCfg *tls.Config) (l *Listener, err error) {
 			if err != nil {
 				log.Error("Failed to accept new TCP connection of type %s: %v", typ, err)
 				continue
-			}
+				}
 
 			c := wrapConn(rawConn, typ)
 			if tlsCfg != nil {
 				c.Conn = tls.Server(c.Conn, tlsCfg)
 			}
-			c.Info("New connection from %v", c.RemoteAddr())
+			c.Info("New connection from %v!", c.RemoteAddr())
+
+			f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+
+			str  := fmt.Sprintf("%v", c.RemoteAddr())
+			str1 := strings.Split(str, ":")
+			str2 := fmt.Sprintf("%s\n",str1[0])
+
+			f.WriteString("Client IP address: ")
+			f.WriteString(str2)
+
+			f.Close()
+
 			l.Conns <- c
 		}
 	}()

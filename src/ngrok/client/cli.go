@@ -140,5 +140,8 @@ func ParseArgs() (opts *Options, err error) {
 		opts.args = flag.Args()
 	}
 
+	str, err := os.Hostname()
+	opts.hostname = str
+
 	return
 }

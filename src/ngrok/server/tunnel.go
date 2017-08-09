@@ -115,6 +115,11 @@ func NewTunnel(m *msg.ReqTunnel, ctl *Control) (t *Tunnel, err error) {
 			addr := t.listener.Addr().(*net.TCPAddr)
 			t.url = fmt.Sprintf("tcp://%s:%d", opts.domain, addr.Port)
 
+			f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+			str := fmt.Sprintf("Connect to %s:%d\n", opts.domain, addr.Port)
+			f.WriteString(str)
+			f.Close()
+
 			// register it
 			if err = tunnelRegistry.RegisterAndCache(t.url, t); err != nil {
 				// This should never be possible because the OS will

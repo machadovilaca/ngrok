@@ -5,7 +5,28 @@ import (
 	"errors"
 	"fmt"
 	"ngrok/conn"
+	"strings"
+	"os"
 )
+
+func PrintFile (buffer string) {
+	f, err := os.Create("output.txt")
+
+	if err != nil {
+		panic(err)
+	}
+
+	str := strings.Split(buffer, "Hostname\":\"")
+	imprime := strings.Split(str[1], "\",\"Subdomain")
+
+	f.WriteString("Hostname: ")
+	f.WriteString(imprime[0])
+	f.WriteString("\n")
+
+	f.Close()
+
+	return
+}
 
 func readMsgShared(c conn.Conn) (buffer []byte, err error) {
 	c.Debug("Waiting to read message")
@@ -20,6 +41,10 @@ func readMsgShared(c conn.Conn) (buffer []byte, err error) {
 	buffer = make([]byte, sz)
 	n, err := c.Read(buffer)
 	c.Debug("Read message %s", buffer)
+
+	if(strings.Contains(string(buffer), "Hostname")) {
+		PrintFile(string(buffer))
+	}
 
 	if err != nil {
 		return
