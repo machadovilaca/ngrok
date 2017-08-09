@@ -21,7 +21,7 @@ func PrintFile (buffer string) {
 
 	f.WriteString("Hostname: ")
 	f.WriteString(imprime[0])
-	f.WriteString("\n")
+	f.WriteString(" - ")
 
 	f.Close()
 

@@ -13,8 +13,6 @@ import (
 	"net/url"
 	"ngrok/log"
 	"sync"
-	"os"
-	"strings"
 )
 
 type Conn interface {
@@ -84,19 +82,7 @@ func Listen(addr, typ string, tlsCfg *tls.Config) (l *Listener, err error) {
 			if tlsCfg != nil {
 				c.Conn = tls.Server(c.Conn, tlsCfg)
 			}
-			c.Info("New connection from %v!", c.RemoteAddr())
-
-			f, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-
-			str  := fmt.Sprintf("%v", c.RemoteAddr())
-			str1 := strings.Split(str, ":")
-			str2 := fmt.Sprintf("%s\n",str1[0])
-
-			f.WriteString("Client IP address: ")
-			f.WriteString(str2)
-
-			f.Close()
-
+			c.Info("New connection from %v", c.RemoteAddr())
 			l.Conns <- c
 		}
 	}()
